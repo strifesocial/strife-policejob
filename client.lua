@@ -1,0 +1,6 @@
+RegisterNetEvent('pullOverVehicle')
+AddEventHandler('pullOverVehicle', function(vehicle)
+    local playerPed = PlayerPedId()
+    TaskVehicleTempAction(playerPed, vehicle, 27, 1000)
+    TriggerEvent('chat:addMessage', { args = { '^1Vehicle Pulled Over', 'You have successfully pulled over the vehicle.' } })
+end)
