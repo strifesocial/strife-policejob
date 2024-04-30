@@ -1,37 +1,11 @@
-RegisterCommand("pullvehicleover", function(source, args)
+RegisterServerEvent('checkPlayerDuty')
+AddEventHandler('checkPlayerDuty', function()
     local player = source
-    local playerId = GetPlayerIdentifier(player, 0)
-    local playerPed = GetPlayerPed(player)
-    local jobName = QBCore.Functions.GetPlayerData().job.name
+    local playerData = QBCore.Functions.GetPlayerData(player)
 
-    if jobName == 'police' then
-        if IsPedInAnyVehicle(playerPed, false) then
-            local vehicleAhead = GetVehicleInFront()
-
-            if DoesEntityExist(vehicleAhead) and not IsPedInAnyVehicle(GetPedInVehicleSeat(vehicleAhead, -1), false) then
-                TriggerClientEvent('pullOverVehicle', -1, vehicleAhead)
-            else
-                TriggerClientEvent('chat:addMessage', player, { args = { '^1Error', 'No vehicle in front to pull over.' } })
-            end
-        else
-            TriggerClientEvent('chat:addMessage', player, { args = { '^1Error', 'You are not in a vehicle.' } })
-        end
+    if playerData and playerData.job and playerData.job.name == 'police' then
+        TriggerClientEvent('playerOnDuty', player, true)
     else
-        TriggerClientEvent('chat:addMessage', player, { args = { '^1Error', 'You are not a police officer.' } })
+        TriggerClientEvent('playerOnDuty', player, false)
     end
 end)
-
-function GetVehicleInFront()
-    local playerPed = GetPlayerPed(-1)
-    local playerPos = GetEntityCoords(playerPed)
-    local playerOffset = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 5.0, 0.0)
-    local rayHandle = StartShapeTestCapsule(playerPos.x, playerPos.y, playerPos.z, playerOffset.x, playerOffset.y, playerOffset.z, 2.5, 10, playerPed, 7)
-
-    SetEntityVisible(playerPed, false)
-
-    local _, _, _, _, vehicle = GetShapeTestResult(rayHandle)
-    
-    SetEntityVisible(playerPed, true)
-
-    return vehicle
-end
